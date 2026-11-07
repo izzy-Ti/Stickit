@@ -89,6 +89,25 @@ class Note {
         '${r.nextInt(1 << 20).toRadixString(36)}';
   }
 
+  /// Updates this instance in place (keeps object identity for open editors).
+  void assignFrom(Note o) {
+    title = o.title;
+    body = o.body;
+    checklist = o.checklist;
+    items = o.items;
+    bg = o.bg;
+    fg = o.fg;
+    style = o.style;
+    opacity = o.opacity;
+    fontSize = o.fontSize;
+    font = o.font;
+    bold = o.bold;
+    italic = o.italic;
+    pinned = o.pinned;
+    lockScreen = o.lockScreen;
+    updated = o.updated;
+  }
+
   Note copy({String? id}) => Note.fromJson({...toJson(), 'id': id ?? this.id});
 
   Map<String, dynamic> toJson() => {
