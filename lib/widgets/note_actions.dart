@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../data/note_store.dart';
 import '../models/note.dart';
 import '../theme.dart';
+import 'widget_size_picker.dart';
 
 void _snack(BuildContext context, String msg) {
   ScaffoldMessenger.of(context)
@@ -10,10 +11,16 @@ void _snack(BuildContext context, String msg) {
     ..showSnackBar(SnackBar(content: Text(msg)));
 }
 
-/// Asks the launcher to place a widget bound to this note.
-Future<void> pinNoteToHome(BuildContext context, Note note) async {
+/// Lets the user pick a size, then asks the launcher to place a widget bound
+/// to this note. With [replaces], the widget with that id is being resized.
+Future<void> pinNoteToHome(BuildContext context, Note note,
+    {int w = 2, int h = 2, int? replaces}) async {
+  final size = await showWidgetSizePicker(context, note,
+      w: w, h: h, resizing: replaces != null);
+  if (size == null || !context.mounted) return;
   await NoteStore.instance.flush();
-  final ok = await NativeBridge.pinToHome(note.id);
+  final ok = await NativeBridge.pinToHome(note.id,
+      w: size.$1, h: size.$2, replaces: replaces);
   if (!context.mounted) return;
   if (!ok) {
     _snack(context,

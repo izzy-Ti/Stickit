@@ -20,6 +20,7 @@
 ## Features
 
 - Notes and checklists as home screen widgets
+- Drag to pick a widget size (2×1 up to 4×4), even on launchers that can't resize widgets
 - Tick checklist items right from the widget
 - Show a note on your lock screen
 - Optional Bible and Quran verse that changes every hour

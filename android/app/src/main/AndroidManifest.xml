@@ -47,13 +47,136 @@
         <receiver
             android:name=".NoteWidgetProvider"
             android:exported="true"
-            android:label="Sticky note">
+            android:label="Sticky note 2×2">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/note_widget_info" />
+        </receiver>
+
+        <!-- Same widget in other sizes, for launchers that can't resize widgets -->
+        <receiver
+            android:name=".NoteWidget2x1"
+            android:exported="true"
+            android:label="Sticky note 2×1">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/note_widget_2x1" />
+        </receiver>
+        <receiver
+            android:name=".NoteWidget3x1"
+            android:exported="true"
+            android:label="Sticky note 3×1">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/note_widget_3x1" />
+        </receiver>
+        <receiver
+            android:name=".NoteWidget4x1"
+            android:exported="true"
+            android:label="Sticky note 4×1">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/note_widget_4x1" />
+        </receiver>
+        <receiver
+            android:name=".NoteWidget3x2"
+            android:exported="true"
+            android:label="Sticky note 3×2">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/note_widget_3x2" />
+        </receiver>
+        <receiver
+            android:name=".NoteWidget4x2"
+            android:exported="true"
+            android:label="Sticky note 4×2">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/note_widget_4x2" />
+        </receiver>
+        <receiver
+            android:name=".NoteWidget2x3"
+            android:exported="true"
+            android:label="Sticky note 2×3">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/note_widget_2x3" />
+        </receiver>
+        <receiver
+            android:name=".NoteWidget3x3"
+            android:exported="true"
+            android:label="Sticky note 3×3">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/note_widget_3x3" />
+        </receiver>
+        <receiver
+            android:name=".NoteWidget4x3"
+            android:exported="true"
+            android:label="Sticky note 4×3">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/note_widget_4x3" />
+        </receiver>
+        <receiver
+            android:name=".NoteWidget2x4"
+            android:exported="true"
+            android:label="Sticky note 2×4">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/note_widget_2x4" />
+        </receiver>
+        <receiver
+            android:name=".NoteWidget3x4"
+            android:exported="true"
+            android:label="Sticky note 3×4">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/note_widget_3x4" />
+        </receiver>
+        <receiver
+            android:name=".NoteWidget4x4"
+            android:exported="true"
+            android:label="Sticky note 4×4">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/note_widget_4x4" />
         </receiver>
 
         <service

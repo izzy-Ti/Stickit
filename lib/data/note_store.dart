@@ -15,10 +15,15 @@ class NativeBridge {
 
   static void Function(String noteId)? onOpenNote;
 
+  /// Widget resize button tapped: {noteId, widgetId, w, h}.
+  static void Function(Map<String, dynamic> req)? onResizeWidget;
+
   static void init() {
     _ch.setMethodCallHandler((call) async {
       if (call.method == 'openNote' && call.arguments is String) {
         onOpenNote?.call(call.arguments as String);
+      } else if (call.method == 'resizeWidget' && call.arguments is Map) {
+        onResizeWidget?.call(Map<String, dynamic>.from(call.arguments as Map));
       } else if (call.method == 'notesChanged') {
         await NoteStore.instance.reload();
       }
@@ -40,8 +45,17 @@ class NativeBridge {
   static Future<String?> loadNotes() => _call<String>('loadNotes');
   static Future<void> saveNotes(String json) => _call('saveNotes', json);
   static Future<String?> initialNoteId() => _call<String>('initialNoteId');
-  static Future<bool> pinToHome(String id) async =>
-      await _call<bool>('pinToHome', id) ?? false;
+  static Future<Map<String, dynamic>?> initialResize() async {
+    final m = await _call<Map>('initialResize');
+    return m == null ? null : Map<String, dynamic>.from(m);
+  }
+
+  /// Places a widget of [w]×[h] cells. [replaces] is the widget being resized.
+  static Future<bool> pinToHome(String id,
+          {int w = 2, int h = 2, int? replaces}) async =>
+      await _call<bool>('pinToHome',
+          {'noteId': id, 'w': w, 'h': h, 'replaces': replaces}) ??
+      false;
   static Future<int> widgetCount(String id) async =>
       await _call<int>('widgetCount', id) ?? 0;
   static Future<bool> requestNotificationPermission() async =>
