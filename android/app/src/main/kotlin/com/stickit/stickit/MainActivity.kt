@@ -64,6 +64,16 @@ class MainActivity : FlutterActivity() {
             "pinToHome" -> result.success(pinToHome(call.arguments as String))
             "widgetCount" -> result.success(NoteRepo.widgetCount(this, call.arguments as String))
             "requestNotificationPermission" -> requestNotificationPermission(result)
+            "startVerses" -> {
+                VerseManager.start(this)
+                result.success(null)
+            }
+            "verseSettings" -> result.success(VerseManager.settings(this))
+            "setVerseEnabled" -> {
+                val kind = call.argument<String>("kind") ?: return result.success(null)
+                VerseManager.setEnabled(this, kind, call.argument<Boolean>("on") ?: true)
+                result.success(null)
+            }
             else -> result.notImplemented()
         }
     }

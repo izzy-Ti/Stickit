@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Stickit — sticky notes for your home screen</title>
+  <meta name="description" content="Sticky notes for your Android home screen and lock screen, with an optional Bible or Quran verse every hour." />
+  <meta property="og:title" content="Stickit" />
+  <meta property="og:description" content="Sticky notes for your Android home screen." />
+  <meta property="og:image" content="img/quran.jpg" />
+  <link rel="icon" href="img/logo.png" />
+  <style>
+    :root {
+      --bg: #09080c;
+      --card: #121017;
+      --line: #1f1c26;
+      --text: #f2eff7;
+      --muted: #8d879b;
+      --dim: #5f5a6b;
+      --violet: #9d6bff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.55;
+    }
+    a { color: inherit; text-decoration: none; }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+    /* nav */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(9, 8, 12, .8);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
+    }
+    nav .wrap {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 72px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 21px; letter-spacing: -0.01em; }
+    .brand img { width: 44px; height: 44px; }
+    .nav-links { display: flex; align-items: center; gap: 28px; font-size: 14px; color: var(--muted); }
+    .nav-links a:hover { color: var(--text); }
+    .nav-btn {
+      padding: 8px 16px;
+      border-radius: 999px;
+      background: var(--text);
+      color: var(--bg) !important;
+      font-weight: 600;
+    }
+
+    /* hero */
+    .hero { text-align: center; padding: 96px 0 0; }
+    .tag {
+      display: inline-block;
+      font-size: 13px;
+      color: var(--muted);
+      border: 1px solid var(--line);
+      padding: 6px 14px;
+      border-radius: 999px;
+    }
+    .hero h1 {
+      margin: 24px auto 0;
+      max-width: 14ch;
+      font-size: clamp(42px, 7vw, 76px);
+      font-weight: 650;
+      letter-spacing: -0.045em;
+      line-height: 1.02;
+    }
+    .hero h1 span { color: var(--violet); }
+    .hero p.lede {
+      margin: 20px auto 0;
+      max-width: 30em;
+      font-size: 18px;
+      color: var(--muted);
+    }
+    .cta { margin-top: 34px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn {
+      display: inline-block;
+      padding: 15px 28px;
+      border-radius: 999px;
+      font-size: 16px;
+      font-weight: 600;
+      transition: transform .15s, background .15s;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn.primary { background: var(--text); color: var(--bg); }
+    .btn.primary:hover { background: #fff; }
+    .btn.ghost { border: 1px solid var(--line); color: var(--text); }
+    .btn.ghost:hover { background: var(--card); }
+    .meta { margin-top: 14px; font-size: 13px; color: var(--dim); }
+
+    .shots {
+      margin-top: 72px;
+      display: flex;
+      gap: 22px;
+      justify-content: center;
+    }
+    .shots img {
+      width: 300px;
+      max-width: 31%;
+      height: auto;
+      border-radius: 22px;
+      display: block;
+    }
+
+    /* features */
+    .features {
+      margin-top: 110px;
+      margin-bottom: 0;
+      padding: 72px 0 96px;
+      border-top: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+    }
+    .features h3 { font-size: 17px; font-weight: 600; margin-bottom: 8px; }
+    .features p { font-size: 15px; color: var(--muted); }
+    .features .n { font-size: 13px; color: var(--violet); margin-bottom: 14px; display: block; }
+
+    /* channel card */
+    .channel {
+      position: relative;
+      margin: 44px auto 0;
+      text-align: left;
+      border-radius: 28px;
+      overflow: hidden;
+      isolation: isolate;
+    }
+    .channel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      background:
+        radial-gradient(circle at 18% 30%, #7c4dff 0, transparent 42%),
+        radial-gradient(circle at 82% 70%, #2aa3e6 0, transparent 40%),
+        radial-gradient(circle at 60% 10%, #c06bff 0, transparent 35%),
+        var(--card);
+    }
+    .channel-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+      padding: 48px 52px;
+      background: rgba(18, 16, 23, .45);
+      backdrop-filter: blur(40px) saturate(140%);
+      -webkit-backdrop-filter: blur(40px) saturate(140%);
+      border: 1px solid rgba(255, 255, 255, .08);
+      border-radius: 28px;
+    }
+    .channel h2 { font-size: clamp(26px, 3.4vw, 36px); font-weight: 650; letter-spacing: -0.03em; line-height: 1.1; }
+    .channel p { margin-top: 8px; color: #c9c3d6; font-size: 16px; }
+    .channel-inner > div { flex: 1 1 320px; }
+    .channel .btn.primary { white-space: nowrap; flex: none; }
+
+    /* footer */
+    footer { border-top: 1px solid var(--line); }
+    footer .wrap {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-top: 28px;
+      padding-bottom: 36px;
+      font-size: 14px;
+      color: var(--dim);
+    }
+    footer a { color: var(--muted); }
+    footer a:hover { color: var(--text); }
+    .portfolio { color: var(--text) !important; font-weight: 700; }
+
+    @media (max-width: 760px) {
+      .nav-links .hide-sm { display: none; }
+      .hero { padding-top: 64px; }
+      .shots { gap: 10px; margin-top: 52px; }
+      .shots img { border-radius: 14px; }
+      .channel-inner { padding: 32px 26px; }
+      .features { grid-template-columns: 1fr; gap: 28px; margin-top: 72px; padding: 52px 0 64px; text-align: left; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="wrap">
+      <a class="brand" href="#"><img src="img/logo.png" alt="" />Stickit</a>
+      <div class="nav-links">
+        <a class="hide-sm" href="#features">Features</a>
+        <a class="hide-sm portfolio" href="https://israelashenafi.com" target="_blank" rel="noopener">Made by Israel</a>
+        <a href="https://t.me/Atomic_izzy" target="_blank" rel="noopener">Channel</a>
+        <a class="nav-btn" href="stickit.apk" download>Download</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="wrap">
+    <section class="hero">
+      <span class="tag">Free for Android</span>
+      <h1>Sticky notes for your <span>home screen.</span></h1>
+      <p class="lede">
+        Pin notes and checklists right where you'll see them, on your home screen
+        or lock screen. Add a Bible or Quran verse that changes every hour.
+      </p>
+      <div class="cta">
+        <a class="btn primary" href="stickit.apk" download>Download for Android</a>
+        <a class="btn ghost" href="https://t.me/israelashenafi" target="_blank" rel="noopener">Message on Telegram</a>
+      </div>
+      <p class="meta">16 MB &middot; No account &middot; No ads</p>
+      <div class="channel">
+        <div class="channel-inner">
+          <div>
+            <h2>Join my Telegram channel</h2>
+            <p>Updates, new features and the next things I'm building. <b>@Atomic_izzy</b></p>
+          </div>
+          <a class="btn primary" href="https://t.me/Atomic_izzy" target="_blank" rel="noopener">Join the channel</a>
+        </div>
+      </div>
+
+      <div class="shots">
+        <img src="img/bible.jpg" width="480" height="938" alt="Bible verse note on a home screen" />
+        <img src="img/quran.jpg" width="480" height="938" alt="Quran verse note on a home screen" />
+        <img src="img/quotes.jpg" width="480" height="938" alt="Quote notes on a home screen" />
+      </div>
+    </section>
+
+    <section class="features" id="features">
+      <div>
+        <span class="n">01</span>
+        <h3>Home screen widgets</h3>
+        <p>Every note can be a resizable widget. Tick off checklist items without opening the app.</p>
+      </div>
+      <div>
+        <span class="n">02</span>
+        <h3>Lock screen notes</h3>
+        <p>Keep the important one in front of you every time you pick up your phone.</p>
+      </div>
+      <div>
+        <span class="n">03</span>
+        <h3>Verse of the hour</h3>
+        <p>Optional Bible and Quran notes that refresh on their own. Remove them any time.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <span>Made by <a class="portfolio" href="https://israelashenafi.com" target="_blank" rel="noopener">israelashenafi.com</a></span>
+      <span>Channel <a href="https://t.me/Atomic_izzy" target="_blank" rel="noopener">@Atomic_izzy</a> &middot; Contact <a href="https://t.me/israelashenafi" target="_blank" rel="noopener">@israelashenafi</a></span>
+    </div>
+  </footer>
+
+</body>
+</html>

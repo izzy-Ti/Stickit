@@ -8,7 +8,8 @@ import '../models/note.dart';
 
 /// Bridge to the native Android side. Notes are stored natively (SharedPreferences)
 /// so that home-screen widgets and lock-screen notifications can read them
-/// without starting Flutter. Everything is local — no network needed.
+/// without starting Flutter. Only the built-in verse notes use the network
+/// (fetched natively, hourly).
 class NativeBridge {
   static const _ch = MethodChannel('stickit/native');
 
@@ -45,7 +46,24 @@ class NativeBridge {
       await _call<int>('widgetCount', id) ?? 0;
   static Future<bool> requestNotificationPermission() async =>
       await _call<bool>('requestNotificationPermission') ?? true;
+
+  /// Adds the default verse notes on first run and schedules hourly refresh.
+  static Future<void> startVerses() => _call('startVerses');
+
+  /// Which verse notes are turned on, e.g. {'bible': true, 'quran': false}.
+  static Future<Map<String, bool>> verseSettings() async {
+    final m = await _call<Map>('verseSettings');
+    return {
+      for (final k in verseKinds.keys) k: (m?[k] as bool?) ?? true,
+    };
+  }
+
+  static Future<void> setVerseEnabled(String kind, bool on) =>
+      _call('setVerseEnabled', {'kind': kind, 'on': on});
 }
+
+/// Built-in verse notes and their display names.
+const verseKinds = {'bible': 'Bible verse', 'quran': 'Quran verse'};
 
 class NoteStore extends ChangeNotifier {
   NoteStore._();
@@ -120,11 +138,16 @@ class NoteStore extends ChangeNotifier {
     _notes.removeWhere((e) => e.id == n.id);
     _notes.add(n);
     changed(immediate: true);
+    // Restoring a deleted verse note turns that verse back on.
+    if (n.kind != null) NativeBridge.setVerseEnabled(n.kind!, true);
   }
 
   void delete(String id) {
+    final kind = byId(id)?.kind;
     _notes.removeWhere((n) => n.id == id);
     changed(immediate: true);
+    // Deleting a verse note turns it off (it can be re-enabled in settings).
+    if (kind != null) NativeBridge.setVerseEnabled(kind, false);
   }
 
   /// Call after mutating a note. Saves are debounced to keep typing smooth.

@@ -76,5 +76,6 @@ class BootReceiver : BroadcastReceiver() {
     override fun onReceive(ctx: Context, intent: Intent) {
         LockScreenNotifier.sync(ctx)
         NoteWidgetProvider.updateAll(ctx)
+        VerseManager.schedule(ctx)
     }
 }

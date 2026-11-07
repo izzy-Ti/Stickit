@@ -30,6 +30,16 @@ data class NoteData(
         else body
 
     companion object {
+        /** Older, more saturated presets mapped to their softer replacements. */
+        private val LEGACY = listOf(
+            0xFFFFF59D, 0xFFFFF6C7, 0xFFFFCC80, 0xFFFFE2BF, 0xFFFFAB91, 0xFFFFD3C6,
+            0xFFF48FB1, 0xFFFBD0DF, 0xFFCE93D8, 0xFFE8D0EE, 0xFFB39DDB, 0xFFDCD3F2,
+            0xFF90CAF9, 0xFFCFE6FB, 0xFF80DEEA, 0xFFCCF0F3, 0xFFA5D6A7, 0xFFD5ECD3,
+            0xFFE6EE9C, 0xFFEEF4C6,
+        ).let { flat -> flat.chunked(2).associate { (a, b) -> a.toInt() to b.toInt() } }
+
+        private fun soften(c: Int) = LEGACY[c] ?: c
+
         fun from(o: JSONObject): NoteData {
             val arr = o.optJSONArray("items") ?: JSONArray()
             val items = (0 until arr.length()).map {
@@ -42,7 +52,7 @@ data class NoteData(
                 body = o.optString("body"),
                 checklist = o.optBoolean("checklist"),
                 items = items,
-                bg = o.optLong("bg", 0xFFFFF59DL).toInt(),
+                bg = soften(o.optLong("bg", 0xFFFFF6C7L).toInt()),
                 fg = o.optLong("fg", 0xFF1A1A1AL).toInt(),
                 style = o.optString("style", "solid"),
                 opacity = o.optDouble("opacity", 1.0).toFloat(),
@@ -111,7 +121,7 @@ object NoteRepo {
         val o = JSONObject()
             .put("id", id).put("title", "").put("body", "")
             .put("checklist", false).put("items", JSONArray())
-            .put("bg", 0xFFFFF59DL).put("fg", 0xFF1A1A1AL)
+            .put("bg", 0xFFFFF6C7L).put("fg", 0xFF1A1A1AL)
             .put("style", "solid").put("opacity", 1.0).put("size", 16.0)
             .put("font", "sans").put("bold", false).put("italic", false)
             .put("pinned", false).put("lock", false)
@@ -119,6 +129,43 @@ object NoteRepo {
         val arr = array(ctx).put(o)
         prefs(ctx).edit().putString(KEY_NOTES, arr.toString()).commit()
         return id
+    }
+
+    /** Adds a built-in verse note (see [VerseManager]). */
+    fun addVerseNote(ctx: Context, id: String, kind: String, title: String, body: String, bg: Long) {
+        val o = JSONObject()
+            .put("id", id).put("kind", kind).put("title", title).put("body", body)
+            .put("checklist", false).put("items", JSONArray())
+            .put("bg", bg).put("fg", 0xFF1A1A1AL)
+            .put("style", "solid").put("opacity", 1.0).put("size", 16.0)
+            .put("font", "serif").put("bold", false).put("italic", false)
+            .put("pinned", false).put("lock", false)
+            .put("updated", System.currentTimeMillis())
+        prefs(ctx).edit().putString(KEY_NOTES, array(ctx).put(o).toString()).commit()
+    }
+
+    /** Replaces a note's title and body, keeping its styling. */
+    fun updateText(ctx: Context, id: String, title: String, body: String): Boolean {
+        val arr = array(ctx)
+        for (i in 0 until arr.length()) {
+            val o = arr.getJSONObject(i)
+            if (o.optString("id") != id) continue
+            o.put("title", title).put("body", body).put("updated", System.currentTimeMillis())
+            saveRaw(ctx, arr.toString())
+            return true
+        }
+        return false
+    }
+
+    fun remove(ctx: Context, id: String): Boolean {
+        val arr = array(ctx)
+        for (i in 0 until arr.length()) {
+            if (arr.getJSONObject(i).optString("id") != id) continue
+            arr.remove(i)
+            saveRaw(ctx, arr.toString())
+            return true
+        }
+        return false
     }
 
     // ---- widget ↔ note bindings ----

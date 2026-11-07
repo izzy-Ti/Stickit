@@ -2,6 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../theme.dart';
+
 /// Background patterns available for a note (also rendered natively in widgets).
 enum BgStyle { solid, gradient, lined, grid, dots }
 
@@ -27,7 +29,7 @@ class Note {
     this.body = '',
     this.checklist = false,
     List<ChecklistItem>? items,
-    this.bg = 0xFFFFF59D,
+    this.bg = 0xFFFFF6C7,
     this.fg = 0xFF1A1A1A,
     this.style = BgStyle.solid,
     this.opacity = 1.0,
@@ -37,6 +39,7 @@ class Note {
     this.italic = false,
     this.pinned = false,
     this.lockScreen = false,
+    this.kind,
     int? updated,
   })  : items = items ?? [],
         updated = updated ?? DateTime.now().millisecondsSinceEpoch;
@@ -57,6 +60,11 @@ class Note {
   bool pinned;
   bool lockScreen;
   int updated;
+
+  /// Set for built-in notes: 'bible' or 'quran' (verse refreshed hourly).
+  String? kind;
+
+  bool get isVerse => kind != null;
 
   Color get bgColor => Color(bg);
   Color get fgColor => Color(fg);
@@ -105,10 +113,13 @@ class Note {
     italic = o.italic;
     pinned = o.pinned;
     lockScreen = o.lockScreen;
+    kind = o.kind;
     updated = o.updated;
   }
 
-  Note copy({String? id}) => Note.fromJson({...toJson(), 'id': id ?? this.id});
+  /// A copy with a new [id] is a plain note (it isn't refreshed with verses).
+  Note copy({String? id}) => Note.fromJson(
+      {...toJson(), 'id': id ?? this.id, if (id != null) 'kind': null});
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -127,7 +138,10 @@ class Note {
         'pinned': pinned,
         'lock': lockScreen,
         'updated': updated,
+        if (kind != null) 'kind': kind,
       };
+
+  static int _soften(int c) => AppColors.legacyColors[c] ?? c;
 
   factory Note.fromJson(Map<String, dynamic> j) => Note(
         id: j['id'] as String,
@@ -137,7 +151,7 @@ class Note {
         items: (j['items'] as List? ?? [])
             .map((e) => ChecklistItem.fromJson(Map<String, dynamic>.from(e as Map)))
             .toList(),
-        bg: (j['bg'] as num?)?.toInt() ?? 0xFFFFF59D,
+        bg: _soften((j['bg'] as num?)?.toInt() ?? 0xFFFFF6C7),
         fg: (j['fg'] as num?)?.toInt() ?? 0xFF1A1A1A,
         style: BgStyle.values.firstWhere((s) => s.name == j['style'],
             orElse: () => BgStyle.solid),
@@ -149,6 +163,7 @@ class Note {
         italic: j['italic'] as bool? ?? false,
         pinned: j['pinned'] as bool? ?? false,
         lockScreen: j['lock'] as bool? ?? false,
+        kind: j['kind'] as String?,
         updated: (j['updated'] as num?)?.toInt(),
       );
 }
