@@ -1,17 +1,37 @@
-# stickit
+<p align="center">
+  <img src="website/img/logo.png" width="96" alt="Stickit logo" />
+</p>
 
-A new Flutter project.
+<h1 align="center">Stickit</h1>
 
-## Getting Started
+<p align="center">Sticky notes for your Android home screen.</p>
 
-This project is a starting point for a Flutter application.
+<p align="center">
+  <a href="https://stickit.byisrael.tech/stickit.apk"><b>Download the APK</b></a> ·
+  <a href="https://stickit.byisrael.tech">Website</a>
+</p>
 
-A few resources to get you started if this is your first Flutter project:
+<p align="center">
+  <img src="website/img/bible.jpg" width="240" alt="Bible verse note" />
+  <img src="website/img/quran.jpg" width="240" alt="Quran verse note" />
+  <img src="website/img/quotes.jpg" width="240" alt="Quote notes" />
+</p>
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+## Features
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- Notes and checklists as home screen widgets
+- Tick checklist items right from the widget
+- Show a note on your lock screen
+- Optional Bible and Quran verse that changes every hour
+- No account, no ads
+
+## Build
+
+```bash
+flutter pub get
+flutter build apk --release --split-per-abi
+```
+
+## Contact
+
+Made by [Israel Ashenafi](https://israelashenafi.com) · Telegram [@israelashenafi](https://t.me/israelashenafi) · Channel [@Atomic_izzy](https://t.me/Atomic_izzy)
