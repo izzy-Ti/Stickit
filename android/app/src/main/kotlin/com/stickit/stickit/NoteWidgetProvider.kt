@@ -51,7 +51,9 @@ class NoteWidgetProvider : AppWidgetProvider() {
             val opts = mgr.getAppWidgetOptions(widgetId)
             val wDp = opts.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH).takeIf { it > 0 } ?: 180
             val hDp = opts.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT).takeIf { it > 0 } ?: 180
-            views.setImageViewBitmap(R.id.bg, BackgroundRenderer.render(ctx, note, wDp, hDp))
+            val paper = BackgroundRenderer.render(ctx, note, wDp, hDp)
+            views.setImageViewBitmap(R.id.bg, paper.bitmap)
+            views.setViewPadding(R.id.content, paper.left, paper.top, paper.right, paper.bottom)
 
             if (note == null) {
                 // Not bound yet (or note deleted): tap to choose a note.
@@ -62,7 +64,7 @@ class NoteWidgetProvider : AppWidgetProvider() {
                 }
                 val pi = PendingIntent.getActivity(ctx, widgetId, cfg, IMMUTABLE)
                 views.setTextViewText(R.id.title, "Stickit")
-                views.setTextColor(R.id.title, 0xFFF2EEFA.toInt())
+                views.setTextColor(R.id.title, BackgroundRenderer.DEFAULT_FG)
                 views.setViewVisibility(R.id.title, View.VISIBLE)
                 views.setViewVisibility(R.id.list, View.GONE)
                 views.setViewVisibility(R.id.empty, View.VISIBLE)
@@ -70,8 +72,8 @@ class NoteWidgetProvider : AppWidgetProvider() {
                     R.id.empty,
                     if (noteId == null) "Tap to choose a note" else "This note was deleted.\nTap to choose another",
                 )
-                views.setTextColor(R.id.empty, 0xFFB9A6F0.toInt())
-                views.setInt(R.id.edit, "setColorFilter", 0xFF9D6BFF.toInt())
+                views.setTextColor(R.id.empty, BackgroundRenderer.withAlpha(BackgroundRenderer.DEFAULT_FG, 150))
+                views.setInt(R.id.edit, "setColorFilter", BackgroundRenderer.withAlpha(BackgroundRenderer.DEFAULT_FG, 170))
                 views.setOnClickPendingIntent(R.id.root, pi)
                 views.setOnClickPendingIntent(R.id.empty, pi)
                 views.setOnClickPendingIntent(R.id.header, pi)
