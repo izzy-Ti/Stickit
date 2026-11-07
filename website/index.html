@@ -11,18 +11,17 @@
   <link rel="icon" href="img/logo.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Caveat:wght@500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --paper: #f3eee4;
-      --paper-2: #ebe4d6;
-      --ink: #1d1a22;
-      --ink-soft: #5c566a;
-      --line: #d9d0bf;
-      --violet: #5a2fc2;
+      --paper: #0c0b10;
+      --paper-2: #15131b;
+      --ink: #f1edf7;
+      --ink-soft: #9a93aa;
+      --line: #24202c;
+      --violet: #a98bff;
       --serif: "Fraunces", Georgia, "Times New Roman", serif;
       --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      --hand: "Caveat", "Comic Sans MS", cursive;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -59,7 +58,7 @@
     nav .links a:hover { color: var(--ink); }
 
     /* hero */
-    .hero { padding: 56px 0 40px; }
+    .hero { padding: 64px 0 40px; text-align: center; }
     .hero h1 {
       font-family: var(--serif);
       font-weight: 400;
@@ -67,10 +66,11 @@
       line-height: 1.02;
       letter-spacing: -0.025em;
       max-width: 13ch;
+      margin: 0 auto;
     }
     .hero h1 em { font-style: italic; color: var(--violet); }
     .hero .lede {
-      margin-top: 22px;
+      margin: 22px auto 0;
       max-width: 34em;
       color: var(--ink-soft);
       font-size: 19px;
@@ -81,11 +81,12 @@
       align-items: center;
       gap: 22px;
       flex-wrap: wrap;
+      justify-content: center;
     }
     .btn {
       display: inline-block;
-      background: var(--ink);
-      color: var(--paper);
+      background: #7c4dff;
+      color: #fff;
       text-decoration: none;
       padding: 16px 28px;
       border-radius: 6px;
@@ -93,21 +94,15 @@
       font-size: 17px;
       transition: background .15s;
     }
-    .btn:hover { background: var(--violet); }
+    .btn:hover { background: #8f66ff; }
     .meta { font-size: 14px; color: var(--ink-soft); }
-    .scribble {
-      font-family: var(--hand);
-      font-size: 24px;
-      color: var(--violet);
-      transform: rotate(-3deg);
-      display: inline-block;
-    }
 
     .hero-shot {
-      margin-top: 56px;
+      margin: 56px auto 0;
+      max-width: 980px;
       border-radius: 14px;
       overflow: hidden;
-      box-shadow: 0 30px 60px -30px rgba(40, 20, 80, .45);
+      box-shadow: 0 30px 60px -30px rgba(0, 0, 0, .7);
     }
 
     /* sections */
@@ -138,7 +133,7 @@
       font-family: var(--serif);
       font-size: 15px;
       color: var(--violet);
-      border-top: 2px solid var(--ink);
+      border-top: 2px solid var(--violet);
       padding-top: 14px;
       display: block;
     }
@@ -152,22 +147,22 @@
 
     /* showcase */
     .shots {
-      margin-top: 52px;
+      margin: 52px auto 0;
+      max-width: 780px;
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 28px;
+      gap: 24px;
       align-items: start;
     }
     figure img {
       border-radius: 12px;
-      box-shadow: 0 20px 40px -24px rgba(40, 20, 80, .5);
+      box-shadow: 0 20px 40px -24px rgba(0, 0, 0, .7);
     }
     figure:nth-child(1) { transform: rotate(-1.5deg); }
     figure:nth-child(2) { transform: translateY(28px); }
     figure:nth-child(3) { transform: rotate(1.5deg); }
     figcaption {
-      font-family: var(--hand);
-      font-size: 24px;
+      font-size: 14px;
       text-align: center;
       margin-top: 12px;
       color: var(--ink-soft);
@@ -192,10 +187,10 @@
     }
     .install li b { font-weight: 600; }
     .install .phone {
-      max-width: 300px;
+      max-width: 230px;
       justify-self: center;
       border-radius: 28px;
-      box-shadow: 0 30px 60px -30px rgba(40, 20, 80, .55);
+      box-shadow: 0 30px 60px -30px rgba(0, 0, 0, .7);
     }
 
     /* final cta */
@@ -215,9 +210,9 @@
     @media (max-width: 820px) {
       nav .links .hide-sm { display: none; }
       .features, .shots, .install { grid-template-columns: 1fr; }
-      .shots { gap: 40px; max-width: 380px; margin-left: auto; margin-right: auto; }
+      .shots { gap: 32px; max-width: 260px; margin-left: auto; margin-right: auto; }
       figure:nth-child(2) { transform: none; }
-      .install .phone { max-width: 240px; }
+      .install .phone { max-width: 200px; }
       section { padding: 64px 0; }
     }
   </style>
@@ -243,8 +238,7 @@
       </p>
       <div class="cta">
         <a class="btn" href="stickit.apk" download>Download for Android</a>
-        <span class="meta">Free &middot; APK &middot; 16 MB</span>
-        <span class="scribble">no account, no ads</span>
+        <span class="meta">Free &middot; Android APK &middot; 16 MB &middot; No account, no ads</span>
       </div>
       <img class="hero-shot" src="img/hero.jpg" width="1600" height="1000"
            alt="Three phones showing Stickit notes on the home screen: a Bible verse, a Quran verse, and two quotes" />
