@@ -5,6 +5,7 @@ import 'data/note_store.dart';
 import 'screens/editor_screen.dart';
 import 'screens/home_screen.dart';
 import 'theme.dart';
+import 'widgets/note_actions.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -18,6 +19,7 @@ Future<void> main() async {
   ));
   NativeBridge.init();
   NativeBridge.onOpenNote = _openFromWidget;
+  NativeBridge.onResizeWidget = _resizeFromWidget;
   await NoteStore.instance.load();
   runApp(const StickitApp());
 
@@ -30,6 +32,24 @@ Future<void> main() async {
   if (initial != null) {
     WidgetsBinding.instance.addPostFrameCallback((_) => _openFromWidget(initial));
   }
+  final resize = await NativeBridge.initialResize();
+  if (resize != null) {
+    WidgetsBinding.instance.addPostFrameCallback((_) => _resizeFromWidget(resize));
+  }
+}
+
+/// The resize button on a widget was tapped.
+Future<void> _resizeFromWidget(Map<String, dynamic> req) async {
+  final store = NoteStore.instance;
+  await store.reload();
+  final note = store.byId(req['noteId'] as String);
+  final nav = navigatorKey.currentState;
+  if (note == null || nav == null || !nav.mounted) return;
+  nav.popUntil((r) => r.isFirst);
+  await pinNoteToHome(nav.context, note,
+      w: req['w'] as int? ?? 2,
+      h: req['h'] as int? ?? 2,
+      replaces: req['widgetId'] as int?);
 }
 
 Future<void> _openFromWidget(String id) async {

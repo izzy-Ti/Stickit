@@ -3,7 +3,6 @@ package com.stickit.stickit
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -13,13 +12,20 @@ import android.util.TypedValue
 import android.view.View
 import android.widget.RemoteViews
 
-/** Resizable home-screen (and, where supported, lock-screen) sticky-note widget. */
-class NoteWidgetProvider : AppWidgetProvider() {
+/**
+ * Resizable home-screen (and, where supported, lock-screen) sticky-note widget.
+ * Open so the same widget can be registered in several sizes (see WidgetSizes).
+ */
+open class NoteWidgetProvider : AppWidgetProvider() {
 
     companion object {
         const val ACTION_PINNED = "com.stickit.stickit.WIDGET_PINNED"
         const val ACTION_TOGGLE = "com.stickit.stickit.TOGGLE_ITEM"
         const val EXTRA_INDEX = "item_index"
+        /** Old widget to retire once a resized copy has been placed. */
+        const val EXTRA_REPLACES = "replaces_widget"
+        /** Binding value for a widget that was replaced by a resized copy. */
+        const val REPLACED = "__replaced__"
 
         private const val MUTABLE =
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
@@ -28,7 +34,7 @@ class NoteWidgetProvider : AppWidgetProvider() {
 
         fun updateAll(ctx: Context) {
             val mgr = AppWidgetManager.getInstance(ctx)
-            val ids = mgr.getAppWidgetIds(ComponentName(ctx, NoteWidgetProvider::class.java))
+            val ids = WidgetSizes.allWidgetIds(ctx)
             if (ids.isEmpty()) return
             ids.forEach { update(ctx, mgr, it) }
             @Suppress("DEPRECATION")
@@ -41,6 +47,12 @@ class NoteWidgetProvider : AppWidgetProvider() {
                 data = Uri.parse("stickit://note/${noteId ?: ""}")
                 putExtra(MainActivity.EXTRA_NOTE_ID, noteId)
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            }
+
+        fun resizeIntent(ctx: Context, noteId: String, widgetId: Int): Intent =
+            openNoteIntent(ctx, noteId).apply {
+                data = Uri.parse("stickit://resize/$widgetId")
+                putExtra(MainActivity.EXTRA_RESIZE_WIDGET, widgetId)
             }
 
         fun update(ctx: Context, mgr: AppWidgetManager, widgetId: Int) {
@@ -67,10 +79,15 @@ class NoteWidgetProvider : AppWidgetProvider() {
                 views.setTextColor(R.id.title, BackgroundRenderer.DEFAULT_FG)
                 views.setViewVisibility(R.id.title, View.VISIBLE)
                 views.setViewVisibility(R.id.list, View.GONE)
+                views.setViewVisibility(R.id.resize, View.GONE)
                 views.setViewVisibility(R.id.empty, View.VISIBLE)
                 views.setTextViewText(
                     R.id.empty,
-                    if (noteId == null) "Tap to choose a note" else "This note was deleted.\nTap to choose another",
+                    when (noteId) {
+                        null -> "Tap to choose a note"
+                        REPLACED -> "Moved to a resized widget.\nLong-press here and remove this one"
+                        else -> "This note was deleted.\nTap to choose another"
+                    },
                 )
                 views.setTextColor(R.id.empty, BackgroundRenderer.withAlpha(BackgroundRenderer.DEFAULT_FG, 150))
                 views.setInt(R.id.edit, "setColorFilter", BackgroundRenderer.withAlpha(BackgroundRenderer.DEFAULT_FG, 170))
@@ -88,6 +105,12 @@ class NoteWidgetProvider : AppWidgetProvider() {
             views.setTextColor(R.id.title, note.fg)
             views.setTextViewTextSize(R.id.title, TypedValue.COMPLEX_UNIT_SP, note.size + 2)
             views.setInt(R.id.edit, "setColorFilter", BackgroundRenderer.withAlpha(note.fg, 170))
+            views.setInt(R.id.resize, "setColorFilter", BackgroundRenderer.withAlpha(note.fg, 170))
+            views.setViewVisibility(R.id.resize, View.VISIBLE)
+            views.setOnClickPendingIntent(
+                R.id.resize,
+                PendingIntent.getActivity(ctx, widgetId + 200_000, resizeIntent(ctx, note.id, widgetId), IMMUTABLE),
+            )
 
             // Body list (scrollable, checklist items tappable)
             val svc = Intent(ctx, NoteWidgetService::class.java).apply {
@@ -144,6 +167,12 @@ class NoteWidgetProvider : AppWidgetProvider() {
                     NoteRepo.bindWidget(ctx, widgetId, noteId)
                     val mgr = AppWidgetManager.getInstance(ctx)
                     update(ctx, mgr, widgetId)
+                    // A resized copy was placed: point the old widget at it.
+                    val old = intent.getIntExtra(EXTRA_REPLACES, AppWidgetManager.INVALID_APPWIDGET_ID)
+                    if (old != AppWidgetManager.INVALID_APPWIDGET_ID && old != widgetId) {
+                        NoteRepo.bindWidget(ctx, old, REPLACED)
+                        update(ctx, mgr, old)
+                    }
                     @Suppress("DEPRECATION")
                     mgr.notifyAppWidgetViewDataChanged(intArrayOf(widgetId), R.id.list)
                 }

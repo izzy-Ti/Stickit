@@ -16,6 +16,7 @@ class MainActivity : FlutterActivity() {
 
     companion object {
         const val EXTRA_NOTE_ID = "note_id"
+        const val EXTRA_RESIZE_WIDGET = "resize_widget"
         private const val REQ_NOTIF = 4242
         private var channel: MethodChannel? = null
 
@@ -26,11 +27,13 @@ class MainActivity : FlutterActivity() {
     }
 
     private var initialNoteId: String? = null
+    private var initialResize: Map<String, Any>? = null
     private var pendingPermission: MethodChannel.Result? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
-        initialNoteId = intent?.getStringExtra(EXTRA_NOTE_ID)
+        initialResize = intent?.let(::resizeRequest)
+        initialNoteId = if (initialResize == null) intent?.getStringExtra(EXTRA_NOTE_ID) else null
         channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "stickit/native").also {
             it.setMethodCallHandler(::onCall)
         }
@@ -45,7 +48,21 @@ class MainActivity : FlutterActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        intent.getStringExtra(EXTRA_NOTE_ID)?.let { channel?.invokeMethod("openNote", it) }
+        val resize = resizeRequest(intent)
+        if (resize != null) {
+            channel?.invokeMethod("resizeWidget", resize)
+        } else {
+            intent.getStringExtra(EXTRA_NOTE_ID)?.let { channel?.invokeMethod("openNote", it) }
+        }
+    }
+
+    /** {noteId, widgetId, w, h} when launched from a widget's resize button. */
+    private fun resizeRequest(intent: Intent): Map<String, Any>? {
+        val widgetId = intent.getIntExtra(EXTRA_RESIZE_WIDGET, AppWidgetManager.INVALID_APPWIDGET_ID)
+        val noteId = intent.getStringExtra(EXTRA_NOTE_ID)
+        if (widgetId == AppWidgetManager.INVALID_APPWIDGET_ID || noteId == null) return null
+        val (w, h) = WidgetSizes.sizeOf(AppWidgetManager.getInstance(this), widgetId)
+        return mapOf("noteId" to noteId, "widgetId" to widgetId, "w" to w, "h" to h)
     }
 
     private fun onCall(call: MethodCall, result: MethodChannel.Result) {
@@ -61,7 +78,18 @@ class MainActivity : FlutterActivity() {
                 result.success(initialNoteId)
                 initialNoteId = null
             }
-            "pinToHome" -> result.success(pinToHome(call.arguments as String))
+            "initialResize" -> {
+                result.success(initialResize)
+                initialResize = null
+            }
+            "pinToHome" -> result.success(
+                pinToHome(
+                    call.argument<String>("noteId") ?: return result.success(false),
+                    call.argument<Int>("w") ?: 2,
+                    call.argument<Int>("h") ?: 2,
+                    call.argument<Int>("replaces"),
+                ),
+            )
             "widgetCount" -> result.success(NoteRepo.widgetCount(this, call.arguments as String))
             "requestNotificationPermission" -> requestNotificationPermission(result)
             "startVerses" -> {
@@ -78,19 +106,20 @@ class MainActivity : FlutterActivity() {
         }
     }
 
-    private fun pinToHome(noteId: String): Boolean {
+    private fun pinToHome(noteId: String, w: Int, h: Int, replaces: Int?): Boolean {
         if (Build.VERSION.SDK_INT < 26) return false
         val mgr = getSystemService(AppWidgetManager::class.java) ?: return false
         if (!mgr.isRequestPinAppWidgetSupported) return false
         val callback = Intent(this, NoteWidgetProvider::class.java)
             .setAction(NoteWidgetProvider.ACTION_PINNED)
             .putExtra(EXTRA_NOTE_ID, noteId)
+            .putExtra(NoteWidgetProvider.EXTRA_REPLACES, replaces ?: AppWidgetManager.INVALID_APPWIDGET_ID)
         // Mutable so the launcher can attach the new widget id.
         val pi = PendingIntent.getBroadcast(
             this, noteId.hashCode(), callback,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE,
         )
-        return mgr.requestPinAppWidget(ComponentName(this, NoteWidgetProvider::class.java), null, pi)
+        return mgr.requestPinAppWidget(ComponentName(this, WidgetSizes.providerFor(w, h)), null, pi)
     }
 
     private fun requestNotificationPermission(result: MethodChannel.Result) {
