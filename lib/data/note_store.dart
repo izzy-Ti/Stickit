@@ -80,15 +80,22 @@ class NoteStore extends ChangeNotifier {
 
   /// Re-reads from native storage (e.g. after a checklist was ticked in a widget).
   Future<void> reload() async {
+    // Never let stored data overwrite edits that haven't been written yet.
+    if (_saveTimer?.isActive ?? false) await flush();
     final raw = await NativeBridge.loadNotes();
     if (raw == null || raw.isEmpty) return;
     try {
       final list = (jsonDecode(raw) as List)
           .map((e) => Note.fromJson(Map<String, dynamic>.from(e as Map)))
           .toList();
+      final merged = list.map((n) {
+        final existing = byId(n.id);
+        if (existing == null) return n;
+        return existing..assignFrom(n);
+      }).toList();
       _notes
         ..clear()
-        ..addAll(list);
+        ..addAll(merged);
       notifyListeners();
     } catch (e) {
       debugPrint('Could not parse notes: $e');
