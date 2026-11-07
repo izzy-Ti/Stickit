@@ -106,7 +106,7 @@ class _EditorScreenState extends State<EditorScreen> {
   }
 
   Future<void> _close() async {
-    if (note.isEmpty && store.byId(note.id) != null) {
+    if (note.isEmpty && !note.isVerse && store.byId(note.id) != null) {
       store.delete(note.id);
     } else {
       await store.flush();

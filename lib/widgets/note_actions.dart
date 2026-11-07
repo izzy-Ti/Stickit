@@ -49,7 +49,9 @@ void deleteNote(BuildContext context, Note note) {
   ScaffoldMessenger.of(context)
     ..hideCurrentSnackBar()
     ..showSnackBar(SnackBar(
-      content: const Text('Note deleted'),
+      content: Text(note.isVerse
+          ? '${verseKinds[note.kind] ?? 'Verse'} turned off. Turn it back on in Settings.'
+          : 'Note deleted'),
       action: SnackBarAction(label: 'Undo', onPressed: () => store.insert(backup)),
     ));
 }

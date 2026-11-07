@@ -21,6 +21,10 @@ Future<void> main() async {
   await NoteStore.instance.load();
   runApp(const StickitApp());
 
+  // Default Bible / Quran verse notes (first run) + hourly refresh.
+  await NativeBridge.startVerses();
+  await NoteStore.instance.reload();
+
   // App launched by tapping a widget / lock-screen note.
   final initial = await NativeBridge.initialNoteId();
   if (initial != null) {

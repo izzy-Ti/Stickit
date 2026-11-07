@@ -131,6 +131,43 @@ object NoteRepo {
         return id
     }
 
+    /** Adds a built-in verse note (see [VerseManager]). */
+    fun addVerseNote(ctx: Context, id: String, kind: String, title: String, body: String, bg: Long) {
+        val o = JSONObject()
+            .put("id", id).put("kind", kind).put("title", title).put("body", body)
+            .put("checklist", false).put("items", JSONArray())
+            .put("bg", bg).put("fg", 0xFF1A1A1AL)
+            .put("style", "solid").put("opacity", 1.0).put("size", 16.0)
+            .put("font", "serif").put("bold", false).put("italic", false)
+            .put("pinned", false).put("lock", false)
+            .put("updated", System.currentTimeMillis())
+        prefs(ctx).edit().putString(KEY_NOTES, array(ctx).put(o).toString()).commit()
+    }
+
+    /** Replaces a note's title and body, keeping its styling. */
+    fun updateText(ctx: Context, id: String, title: String, body: String): Boolean {
+        val arr = array(ctx)
+        for (i in 0 until arr.length()) {
+            val o = arr.getJSONObject(i)
+            if (o.optString("id") != id) continue
+            o.put("title", title).put("body", body).put("updated", System.currentTimeMillis())
+            saveRaw(ctx, arr.toString())
+            return true
+        }
+        return false
+    }
+
+    fun remove(ctx: Context, id: String): Boolean {
+        val arr = array(ctx)
+        for (i in 0 until arr.length()) {
+            if (arr.getJSONObject(i).optString("id") != id) continue
+            arr.remove(i)
+            saveRaw(ctx, arr.toString())
+            return true
+        }
+        return false
+    }
+
     // ---- widget ↔ note bindings ----
 
     fun bindWidget(ctx: Context, widgetId: Int, noteId: String) {

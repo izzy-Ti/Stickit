@@ -1,5 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Hourly Bible / Quran verse notes. -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <!-- Lock-screen notes are shown as a persistent notification. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!-- Restore lock-screen notes after reboot. -->
@@ -67,6 +69,10 @@
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
+
+        <receiver
+            android:name=".VerseAlarmReceiver"
+            android:exported="false" />
 
         <meta-data
             android:name="flutterEmbedding"

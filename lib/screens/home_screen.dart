@@ -5,6 +5,7 @@ import '../models/note.dart';
 import '../theme.dart';
 import '../widgets/note_actions.dart';
 import '../widgets/note_card.dart';
+import '../widgets/verse_settings.dart';
 import 'editor_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -167,6 +168,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 IconButton(
                   icon: const Icon(Icons.search_rounded, color: AppColors.text),
                   onPressed: () => setState(() => searching = true),
+                ),
+                IconButton(
+                  tooltip: 'Settings',
+                  icon: const Icon(Icons.tune_rounded, color: AppColors.text),
+                  onPressed: () => showVerseSettings(context),
                 ),
               ]),
       ),
