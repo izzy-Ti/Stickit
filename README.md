@@ -20,6 +20,7 @@
 ## Features
 
 - Notes and checklists as home screen widgets
+- Handwritten look by default (Hand and Marker fonts), or pick Sans, Serif or Mono
 - Drag to pick a widget size (2×1 up to 4×4), even on launchers that can't resize widgets
 - Tick checklist items right from the widget
 - Show a note on your lock screen
@@ -36,3 +37,7 @@ flutter build apk --release --split-per-abi
 ## Contact
 
 Made by [Israel Ashenafi](https://israelashenafi.com) · Telegram [@israelashenafi](https://t.me/israelashenafi) · Channel [@Atomic_izzy](https://t.me/Atomic_izzy)
+
+## Fonts
+
+[Patrick Hand](https://fonts.google.com/specimen/Patrick+Hand) (SIL OFL 1.1) and [Permanent Marker](https://fonts.google.com/specimen/Permanent+Marker) (Apache 2.0). Licenses are in `assets/fonts/`.

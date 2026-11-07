@@ -23,6 +23,7 @@ object TextStyler {
         when (note.font) {
             "serif" -> s.setSpan(TypefaceSpan("serif"), 0, s.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             "mono" -> s.setSpan(TypefaceSpan("monospace"), 0, s.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            // "hand" / "marker" are bundled fonts, set by the widget layouts.
         }
         if (strike) s.setSpan(StrikethroughSpan(), 0, s.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         return s

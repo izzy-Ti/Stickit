@@ -57,7 +57,7 @@ data class NoteData(
                 style = o.optString("style", "solid"),
                 opacity = o.optDouble("opacity", 1.0).toFloat(),
                 size = o.optDouble("size", 16.0).toFloat(),
-                font = o.optString("font", "sans"),
+                font = o.optString("font", "hand"),
                 bold = o.optBoolean("bold"),
                 italic = o.optBoolean("italic"),
                 lock = o.optBoolean("lock"),
@@ -79,7 +79,32 @@ object NoteRepo {
     private fun prefs(ctx: Context): SharedPreferences =
         ctx.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
 
-    fun raw(ctx: Context): String = prefs(ctx).getString(KEY_NOTES, "[]") ?: "[]"
+    private const val KEY_HAND_MIGRATED = "hand_v1"
+
+    fun raw(ctx: Context): String {
+        migrateToHandwriting(ctx)
+        return prefs(ctx).getString(KEY_NOTES, "[]") ?: "[]"
+    }
+
+    /**
+     * Handwriting is the default look since 1.2: switch existing sans/serif notes
+     * to it once. Mono notes were a deliberate choice and stay as they are.
+     */
+    private fun migrateToHandwriting(ctx: Context) {
+        val p = prefs(ctx)
+        if (p.getBoolean(KEY_HAND_MIGRATED, false)) return
+        val raw = p.getString(KEY_NOTES, null)
+        val arr = try { raw?.let(::JSONArray) } catch (_: Exception) { null }
+        if (arr != null) {
+            for (i in 0 until arr.length()) {
+                val o = arr.optJSONObject(i) ?: continue
+                if (o.optString("font", "sans") in setOf("sans", "serif")) o.put("font", "hand")
+            }
+            p.edit().putString(KEY_NOTES, arr.toString()).putBoolean(KEY_HAND_MIGRATED, true).commit()
+        } else {
+            p.edit().putBoolean(KEY_HAND_MIGRATED, true).commit()
+        }
+    }
 
     fun saveRaw(ctx: Context, json: String) {
         prefs(ctx).edit().putString(KEY_NOTES, json).apply()
@@ -123,7 +148,7 @@ object NoteRepo {
             .put("checklist", false).put("items", JSONArray())
             .put("bg", 0xFFFFF6C7L).put("fg", 0xFF1A1A1AL)
             .put("style", "solid").put("opacity", 1.0).put("size", 16.0)
-            .put("font", "sans").put("bold", false).put("italic", false)
+            .put("font", "hand").put("bold", false).put("italic", false)
             .put("pinned", false).put("lock", false)
             .put("updated", System.currentTimeMillis())
         val arr = array(ctx).put(o)
@@ -138,7 +163,7 @@ object NoteRepo {
             .put("checklist", false).put("items", JSONArray())
             .put("bg", bg).put("fg", 0xFF1A1A1AL)
             .put("style", "solid").put("opacity", 1.0).put("size", 16.0)
-            .put("font", "serif").put("bold", false).put("italic", false)
+            .put("font", "hand").put("bold", false).put("italic", false)
             .put("pinned", false).put("lock", false)
             .put("updated", System.currentTimeMillis())
         prefs(ctx).edit().putString(KEY_NOTES, array(ctx).put(o).toString()).commit()
