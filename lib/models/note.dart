@@ -7,8 +7,9 @@ import '../theme.dart';
 /// Background patterns available for a note (also rendered natively in widgets).
 enum BgStyle { solid, gradient, lined, grid, dots }
 
-/// Font families that exist on every Android device.
-enum NoteFont { sans, serif, mono }
+/// Note fonts. sans/serif/mono come with Android; hand and marker are bundled
+/// handwriting fonts (also bundled in the widget, see res/font).
+enum NoteFont { sans, serif, mono, hand, marker }
 
 class ChecklistItem {
   ChecklistItem({required this.text, this.done = false});
@@ -34,7 +35,7 @@ class Note {
     this.style = BgStyle.solid,
     this.opacity = 1.0,
     this.fontSize = 16,
-    this.font = NoteFont.sans,
+    this.font = NoteFont.hand,
     this.bold = false,
     this.italic = false,
     this.pinned = false,
@@ -73,6 +74,8 @@ class Note {
         NoteFont.sans => null,
         NoteFont.serif => 'serif',
         NoteFont.mono => 'monospace',
+        NoteFont.hand => 'PatrickHand',
+        NoteFont.marker => 'PermanentMarker',
       };
 
   TextStyle textStyle({double? size, bool forceBold = false}) => TextStyle(
@@ -158,7 +161,7 @@ class Note {
         opacity: (j['opacity'] as num?)?.toDouble() ?? 1.0,
         fontSize: (j['size'] as num?)?.toDouble() ?? 16,
         font: NoteFont.values.firstWhere((f) => f.name == j['font'],
-            orElse: () => NoteFont.sans),
+            orElse: () => NoteFont.hand),
         bold: j['bold'] as bool? ?? false,
         italic: j['italic'] as bool? ?? false,
         pinned: j['pinned'] as bool? ?? false,

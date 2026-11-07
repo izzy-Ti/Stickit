@@ -7,6 +7,7 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
+import android.os.Build
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.TypedValue
@@ -92,6 +93,16 @@ class WidgetConfigActivity : Activity() {
         finish()
     }
 
+    /** Bundled handwriting font for a note, if it uses one. */
+    private fun handwriting(font: String): Typeface? {
+        if (Build.VERSION.SDK_INT < 26) return null
+        return when (font) {
+            "hand" -> resources.getFont(R.font.hand)
+            "marker" -> resources.getFont(R.font.marker)
+            else -> null
+        }
+    }
+
     private inner class Adapter(val notes: List<NoteData>) : BaseAdapter() {
         override fun getCount() = notes.size + 1
         override fun getItem(position: Int): Any? = if (position == 0) null else notes[position - 1]
@@ -121,7 +132,7 @@ class WidgetConfigActivity : Activity() {
                     else -> "Empty note"
                 }
                 tv.text = TextStyler.style(label, n)
-                tv.typeface = Typeface.DEFAULT
+                tv.typeface = handwriting(n.font) ?: Typeface.DEFAULT
                 tv.setTextColor(n.fg)
                 bg.setColor(n.bg)
             }

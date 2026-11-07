@@ -55,6 +55,20 @@ open class NoteWidgetProvider : AppWidgetProvider() {
                 putExtra(MainActivity.EXTRA_RESIZE_WIDGET, widgetId)
             }
 
+        /** The widget title view for a font (custom fonts live in the layout). */
+        private fun titleIdFor(font: String?) = when (font) {
+            "hand" -> R.id.title_hand
+            "marker" -> R.id.title_marker
+            else -> R.id.title
+        }
+
+        /** Row layout for a font (custom fonts live in the layout). */
+        fun itemLayoutFor(font: String?) = when (font) {
+            "hand" -> R.layout.widget_item_hand
+            "marker" -> R.layout.widget_item_marker
+            else -> R.layout.widget_item
+        }
+
         fun update(ctx: Context, mgr: AppWidgetManager, widgetId: Int) {
             val noteId = NoteRepo.noteForWidget(ctx, widgetId)
             val note = noteId?.let { NoteRepo.find(ctx, it) }
@@ -75,6 +89,8 @@ open class NoteWidgetProvider : AppWidgetProvider() {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 }
                 val pi = PendingIntent.getActivity(ctx, widgetId, cfg, IMMUTABLE)
+                views.setViewVisibility(R.id.title_hand, View.GONE)
+                views.setViewVisibility(R.id.title_marker, View.GONE)
                 views.setTextViewText(R.id.title, "Stickit")
                 views.setTextColor(R.id.title, BackgroundRenderer.DEFAULT_FG)
                 views.setViewVisibility(R.id.title, View.VISIBLE)
@@ -100,10 +116,14 @@ open class NoteWidgetProvider : AppWidgetProvider() {
 
             // Header
             val hasTitle = note.title.isNotBlank()
-            views.setViewVisibility(R.id.title, if (hasTitle) View.VISIBLE else View.INVISIBLE)
-            views.setTextViewText(R.id.title, TextStyler.style(note.title, note, forceBold = true))
-            views.setTextColor(R.id.title, note.fg)
-            views.setTextViewTextSize(R.id.title, TypedValue.COMPLEX_UNIT_SP, note.size + 2)
+            val titleId = titleIdFor(note.font)
+            for (id in intArrayOf(R.id.title, R.id.title_hand, R.id.title_marker)) {
+                if (id != titleId) views.setViewVisibility(id, View.GONE)
+            }
+            views.setViewVisibility(titleId, if (hasTitle) View.VISIBLE else View.INVISIBLE)
+            views.setTextViewText(titleId, TextStyler.style(note.title, note, forceBold = true))
+            views.setTextColor(titleId, note.fg)
+            views.setTextViewTextSize(titleId, TypedValue.COMPLEX_UNIT_SP, note.size + 2)
             views.setInt(R.id.edit, "setColorFilter", BackgroundRenderer.withAlpha(note.fg, 170))
             views.setInt(R.id.resize, "setColorFilter", BackgroundRenderer.withAlpha(note.fg, 170))
             views.setViewVisibility(R.id.resize, View.VISIBLE)
@@ -216,8 +236,8 @@ class NoteWidgetService : android.widget.RemoteViewsService() {
 
         override fun getViewAt(position: Int): RemoteViews {
             val n = note
-            val rv = RemoteViews(ctx.packageName, R.layout.widget_item)
-            if (n == null) return rv
+            if (n == null) return RemoteViews(ctx.packageName, R.layout.widget_item)
+            val rv = RemoteViews(ctx.packageName, NoteWidgetProvider.itemLayoutFor(n.font))
             val fill = Intent().putExtra(MainActivity.EXTRA_NOTE_ID, n.id)
             if (n.checklist && position < n.items.size) {
                 val item = n.items[position]
@@ -242,7 +262,7 @@ class NoteWidgetService : android.widget.RemoteViewsService() {
         }
 
         override fun getLoadingView(): RemoteViews? = null
-        override fun getViewTypeCount() = 1
+        override fun getViewTypeCount() = 3
         override fun getItemId(position: Int) = position.toLong()
         override fun hasStableIds() = false
     }

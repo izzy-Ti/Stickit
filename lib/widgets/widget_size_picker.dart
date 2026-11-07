@@ -117,7 +117,7 @@ class _SizePickerState extends State<_SizePicker> {
                               .where((t) => t.trim().isNotEmpty)
                               .join('\n'),
                           overflow: TextOverflow.fade,
-                          style: TextStyle(color: Color(note.fg), fontSize: 13, height: 1.3),
+                          style: note.textStyle(size: 13),
                         ),
                       ),
                     ),
