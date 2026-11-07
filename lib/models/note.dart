@@ -2,6 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../theme.dart';
+
 /// Background patterns available for a note (also rendered natively in widgets).
 enum BgStyle { solid, gradient, lined, grid, dots }
 
@@ -27,7 +29,7 @@ class Note {
     this.body = '',
     this.checklist = false,
     List<ChecklistItem>? items,
-    this.bg = 0xFFFFF59D,
+    this.bg = 0xFFFFF6C7,
     this.fg = 0xFF1A1A1A,
     this.style = BgStyle.solid,
     this.opacity = 1.0,
@@ -129,6 +131,8 @@ class Note {
         'updated': updated,
       };
 
+  static int _soften(int c) => AppColors.legacyColors[c] ?? c;
+
   factory Note.fromJson(Map<String, dynamic> j) => Note(
         id: j['id'] as String,
         title: j['title'] as String? ?? '',
@@ -137,7 +141,7 @@ class Note {
         items: (j['items'] as List? ?? [])
             .map((e) => ChecklistItem.fromJson(Map<String, dynamic>.from(e as Map)))
             .toList(),
-        bg: (j['bg'] as num?)?.toInt() ?? 0xFFFFF59D,
+        bg: _soften((j['bg'] as num?)?.toInt() ?? 0xFFFFF6C7),
         fg: (j['fg'] as num?)?.toInt() ?? 0xFF1A1A1A,
         style: BgStyle.values.firstWhere((s) => s.name == j['style'],
             orElse: () => BgStyle.solid),
